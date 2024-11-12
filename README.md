@@ -19,6 +19,14 @@ REPO_NAME=your-repo-name
 4. Run the following commands:
 
 ```bash
+# start Kafka
+docker compose up -d
+
+# run the app
 export $(cat .env | xargs)
 go run main.go
 ```
+
+# TODO
+- [ ] GH Actions trigger
+- [ ] Kafka konsumer
