@@ -31,6 +31,7 @@ export class Ci {
       .withDirectory("/src", src, { include: ["go.mod", "go.sum"] })
       .withWorkdir("/src")
       .withExec(["go", "mod", "download"])
+      .withDirectory("/src", src)
       .withExec(["go", "build", "-o", "/src/app"])
 
     const targetContainer = dag.container().from(baseImage)

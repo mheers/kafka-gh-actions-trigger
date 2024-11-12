@@ -27,6 +27,12 @@ export $(cat .env | xargs)
 go run main.go
 ```
 
+5. Produce a message to the `gh-actions-trigger` topic:
+
+```bash
+docker compose exec kafka kafka-console-producer --topic gh-actions-trigger --bootstrap-server localhost:9092
+```
+
 # TODO
 - [ ] GH Actions trigger
 - [ ] Kafka konsumer
