@@ -31,4 +31,8 @@ func main() {
 	if kafkaTopic == "" {
 		log.Fatal("KAFKA_TOPIC environment variable is required")
 	}
+
+	if err := consume(kafkaBroker, kafkaTopic); err != nil {
+		log.Fatalf("failed to consume messages: %v", err)
+	}
 }

@@ -3,38 +3,40 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"time"
 
 	"github.com/segmentio/kafka-go"
 )
 
-func consume(kafkaBroker, kafkaTopic string) {
+func consume(kafkaBroker, kafkaTopic string) error {
 	// to consume messages
 	partition := 0
+	groupID := "my-group"
 
-	conn, err := kafka.DialLeader(context.Background(), "tcp", kafkaBroker, kafkaTopic, partition)
-	if err != nil {
-		log.Fatal("failed to dial leader:", err)
-	}
+	r := kafka.NewReader(
+		kafka.ReaderConfig{
+			Brokers:   []string{kafkaBroker},
+			Topic:     kafkaTopic,
+			Partition: partition,
+			GroupID:   groupID,
+			MaxBytes:  10e6, // 10MB
+		},
+	)
 
-	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
-	batch := conn.ReadBatch(10e3, 1e6) // fetch 10KB min, 1MB max
-
-	b := make([]byte, 10e3) // 10KB max per message
+	ctx := context.Background()
 	for {
-		n, err := batch.Read(b)
+		m, err := r.FetchMessage(ctx)
 		if err != nil {
 			break
 		}
-		fmt.Println(string(b[:n]))
+		fmt.Printf("message at topic/partition/offset %v/%v/%v: %s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
+		if err := r.CommitMessages(ctx, m); err != nil {
+			return fmt.Errorf("failed to commit messages: %e", err)
+		}
 	}
 
-	if err := batch.Close(); err != nil {
-		log.Fatal("failed to close batch:", err)
+	if err := r.Close(); err != nil {
+		return fmt.Errorf("failed to close connection: %e", err)
 	}
 
-	if err := conn.Close(); err != nil {
-		log.Fatal("failed to close connection:", err)
-	}
+	return nil
 }
