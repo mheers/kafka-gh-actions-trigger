@@ -7,7 +7,7 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func consume(kafkaBroker, kafkaTopic string) error {
+func consume(kafkaBroker, kafkaTopic string, c chan int) error {
 	// to consume messages
 	partition := 0
 	groupID := "my-group"
@@ -28,6 +28,7 @@ func consume(kafkaBroker, kafkaTopic string) error {
 		if err != nil {
 			break
 		}
+		c <- 1 // Send a trigger message to the channel
 		fmt.Printf("message at topic/partition/offset %v/%v/%v: %s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
 		if err := r.CommitMessages(ctx, m); err != nil {
 			return fmt.Errorf("failed to commit messages: %e", err)

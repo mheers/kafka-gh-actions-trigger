@@ -30,9 +30,11 @@ go run main.go
 5. Produce a message to the `gh-actions-trigger` topic:
 
 ```bash
-docker compose exec kafka kafka-console-producer --topic gh-actions-trigger --bootstrap-server localhost:9092
+docker compose exec kafka kafka-console-producer --topic gh-actions-trigger --bootstrap-server localhost:29092
 ```
 
+When you produce a message, the GitHub Actions workflow will be triggered.
+
 # TODO
-- [ ] GH Actions trigger
-- [ ] Kafka konsumer
+- [x] GH Actions trigger
+- [x] Kafka konsumer

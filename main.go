@@ -32,7 +32,17 @@ func main() {
 		log.Fatal("KAFKA_TOPIC environment variable is required")
 	}
 
-	if err := consume(kafkaBroker, kafkaTopic); err != nil {
-		log.Fatalf("failed to consume messages: %v", err)
+	c := make(chan int)
+	go consume(kafkaBroker, kafkaTopic, c)
+
+	// trigger github actions workflow when a message is received
+	for {
+		select {
+		case <-c:
+			// Trigger the GitHub Actions workflow
+			if err := triggerGHActionsPipeline(token, repoOrg, repoName); err != nil {
+				log.Fatalf("Error triggering GH Actions pipeline: %v", err)
+			}
+		}
 	}
 }
