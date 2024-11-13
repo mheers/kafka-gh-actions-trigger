@@ -22,3 +22,14 @@ services:
         KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
         KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  actions-trigger:
+    image: mheers/kafka-gh-actions-trigger:latest
+    environment:
+      - "GITHUB_TOKEN=${GITHUB_TOKEN}"
+      - "REPO_ORG=${REPO_ORG}"
+      - "REPO_NAME=${REPO_NAME}"
+      - "KAFKA_BROKER=kafka:9092"
+      - "KAFKA_TOPIC=${KAFKA_TOPIC}"
+    depends_on:
+        - kafka

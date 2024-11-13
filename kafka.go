@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/segmentio/kafka-go"
 )
 
-func consume(kafkaBroker, kafkaTopic string, c chan int) error {
+func consume(kafkaBroker, kafkaTopic string, c chan int) {
 	// to consume messages
 	partition := 0
 	groupID := "my-group"
@@ -26,18 +27,12 @@ func consume(kafkaBroker, kafkaTopic string, c chan int) error {
 	for {
 		m, err := r.FetchMessage(ctx)
 		if err != nil {
-			break
+			log.Fatalf("failed to fetch message: %e", err)
 		}
 		c <- 1 // Send a trigger message to the channel
 		fmt.Printf("message at topic/partition/offset %v/%v/%v: %s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
 		if err := r.CommitMessages(ctx, m); err != nil {
-			return fmt.Errorf("failed to commit messages: %e", err)
+			log.Fatalf("failed to commit messages: %e", err)
 		}
 	}
-
-	if err := r.Close(); err != nil {
-		return fmt.Errorf("failed to close connection: %e", err)
-	}
-
-	return nil
 }

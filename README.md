@@ -35,6 +35,15 @@ docker compose exec kafka kafka-console-producer --topic gh-actions-trigger --bo
 
 When you produce a message, the GitHub Actions workflow will be triggered.
 
+## Build
+
+```bash
+cd ci/
+
+export $(cat .env | xargs)
+dagger call build-and-push-image --src ../ --registry-token=env:REGISTRY_ACCESS_TOKEN
+```
+
 # TODO
 - [x] GH Actions trigger
 - [x] Kafka konsumer
